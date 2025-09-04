@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猫猫meme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon"></span>
+                <h1 class="logo-text">猫猫meme</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#hero">首页</a></li>
+                    <li><a href="#cats">meme图鉴</a></li>
+                    <li><a href="#rest">meme休息区</a></li>
+                    <li><a href="#show">meme舞台</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <main>
+            <section id="hero" class="hero-section">
+                <div class="hero-content">
+                    <h2>发现猫猫meme的无限魅力</h2>
+                    <p>探索不同猫猫meme的独特个性与美丽</p>
+                    <button class="cta-button">探索更多</button>
+                </div>
+                <div class="hero-image">
+                    <div class="image-placeholder">
+                    </div>
+                </div>
+            </section>
+
+            <section id="cats" class="cats-section">
+                <div class="section-header">
+                    <h2>热门猫猫meme</h2>
+                    <p>了解最受欢迎的猫猫meme品种及其特点</p>
+                </div>
+
+                <div class="cats-grid">
+                    <div class="cat-card featured" id="cat1">
+                        <div class="cat-image">
+                            <img src="./assets/01.gif" alt="英短橘猫">
+                        </div>
+                        <div class="cat-info">
+                            <div class="cat-meta">
+                                <span class="cat-breed">飞行员耄耋</span>
+                                <span class="cat-origin">B站</span>
+                            </div>
+                            <!-- TODO_01：仅仅使得飞行员耄耋的名字颜色为红色 -->
+                            <h3 class="cat-name">飞行员耄耋</h3>
+                            <p class="cat-desc">性格温顺，适应能力强，是最受欢迎的猫咪品种之一。</p>
+                            <div class="cat-tags">
+                                <span class="tag">温和</span>
+                                <span class="tag">易养</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cat-card" id="cat2">
+                        <div class="cat-image">
+                            <img src="./assets/02.gif" alt="啊～猫">
+                        </div>
+                        <div class="cat-info">
+                            <div class="cat-meta">
+                                <span class="cat-breed">啊～猫meme</span>
+                                <span class="cat-origin">B站</span>
+                            </div>
+                            <h3 class="cat-name">啊～猫meme</h3>
+                            <p class="cat-desc">拥有华丽的长毛和甜美的面容，性情温文尔雅。</p>
+                            <div class="cat-tags">
+                                <span class="tag">优雅</span>
+                                <span class="tag">安静</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cat-card" id="cat3">
+                        <div class="cat-image">
+                            <img src="./assets/03.gif" alt="希特勒猫">
+                        </div>
+                        <div class="cat-info">
+                            <div class="cat-meta">
+                                <span class="cat-breed">希特勒猫meme</span>
+                                <span class="cat-origin">B站</span>
+                            </div>
+                            <h3 class="cat-name">希特勒猫meme</h3>
+                            <p class="cat-desc">性格活泼好动，聪明伶俐，对主人非常忠诚。</p>
+                            <div class="cat-tags">
+                                <span class="tag">活泼</span>
+                                <span class="tag">聪明</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rest" class="seating-section">
+                <div class="section-header">
+                    <h2>猫猫meme休息区布局</h2>
+                    <p>我们的猫猫meme休息区座位安排</p>
+                </div>
+
+                <div class="seating-layout">
+                    <div class="seating-row">
+                        <div class="seat occupied">1号位</div>
+                        <div class="seat occupied">2号位</div>
+                        <div class="seat available">3号位</div>
+                        <div class="seat available">4号位</div>
+                        <div class="seat available">5号位</div>
+                        <div class="seat available">6号位</div>
+                    </div>
+
+                    <div class="seating-row">
+                        <div class="seat available">7号位</div>
+                        <div class="seat occupied">8号位</div>
+                        <div class="seat occupied">9号位</div>
+                        <div class="seat available">10号位</div>
+                        <div class="seat available">11号位</div>
+                        <div class="seat available">12号位</div>
+                    </div>
+
+                    <!-- TODO_02: 修复Flex布局问题，使这一排座位与上面的对齐（位置宽度一致） -->
+                    <div class="seating-row">
+                        <div class="seat available">13号位</div>
+                        <div class="seat available">14号位</div>
+                        <div class="seat occupied">15号位</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="show" class="animation-section">
+                <div class="section-header">
+                    <h2>猫猫meme动画秀</h2>
+                    <p>看猫猫meme在舞台上表演！</p>
+                </div>
+
+                <div class="stage-container">
+                    <div class="stage">
+                        <!-- TODO_03: 为这个猫咪（cat-performer 类）添加动画，让它在舞台上左右移动 -->
+                        <div class="cat-performer">
+                            <img src="./assets/05.gif" alt="跳舞的猫猫meme">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="animation-info">
+                    <p>在CSS中添加动画后，猫猫meme将自动开始表演</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
