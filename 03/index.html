@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoList 应用</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 TodoList 应用</h1>
+            <p>管理您的日常任务</p>
+        </header>
+
+        <main>
+            <section class="todo-form">
+                <div class="form-group">
+                    <input type="text" id="taskInput" placeholder="添加新任务..." />
+                    <button id="addTaskBtn">添加任务</button>
+                </div>
+            </section>
+
+            <section class="todo-controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索任务..." />
+                </div>
+                <!-- 移除了排序按钮 -->
+            </section>
+
+            <section class="todo-list">
+                <h2>任务列表</h2>
+                <ul id="taskList">
+                    <!-- 任务将通过JavaScript动态添加 -->
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 TodoList 应用. 所有任务都会本地保存.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
