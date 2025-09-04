@@ -1,0 +1,230 @@
+/* 基础样式设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 头部样式 */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2rem;
+}
+
+/* 主要内容区域 */
+main {
+    min-height: 70vh;
+}
+
+/* 表格样式 */
+.contacts-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.contacts-table th,
+.contacts-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.contacts-table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.contacts-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.contacts-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 加载和错误状态 */
+.loading, .error, .no-contacts {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+}
+
+.error {
+    color: #e74c3c;
+    background-color: #fdf2f2;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+.no-contacts {
+    color: #95a5a6;
+}
+
+/* 分页样式 */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pagination-info {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.pagination-controls label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+#items-per-page {
+    padding: 8px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+}
+
+.pagination-controls button {
+    padding: 8px 12px;
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #3498db;
+    color: white;
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-number {
+    padding: 8px 12px;
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.page-number:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.page-number.active {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+}
+
+.page-jump {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.page-jump input {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+}
+
+.page-jump button {
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.page-jump button:hover {
+    background-color: #2980b9;
+}
+
+/* 底部样式 */
+footer {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .contacts-table {
+        font-size: 14px;
+    }
+    
+    .contacts-table th,
+    .contacts-table td {
+        padding: 8px 5px;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .pagination-controls {
+        justify-content: center;
+    }
+}

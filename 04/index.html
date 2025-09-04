@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通讯录</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>通讯录</h1>
+        </header>
+        
+        <main>
+            <div id="contacts-container">
+                <p class="loading">正在加载通讯录...</p>
+            </div>
+            
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <span id="page-info"></span>
+                </div>
+                <div class="pagination-controls">
+                    <label for="items-per-page">每页显示:</label>
+                    <select id="items-per-page">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    
+                    <button id="first-page" disabled>首页</button>
+                    <button id="prev-page" disabled>上一页</button>
+                    <span id="page-numbers"></span>
+                    <button id="next-page">下一页</button>
+                    <button id="last-page">末页</button>
+                    
+                    <div class="page-jump">
+                        <span>跳转到:</span>
+                        <input type="number" id="page-input" min="1" max="100">
+                        <button id="go-to-page">跳转</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 通讯录应用</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
