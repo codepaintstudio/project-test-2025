@@ -107,11 +107,15 @@ class TodoList {
         }
     }
 
-    // TODO_04: 完成搜索任务
+    // 搜索任务
     searchTasks(query) {
-        // TODO_04: start
+        if (!query) {
+            return this.tasks;
+        }
 
-        // TODO_04: end
+        return this.tasks.filter(task =>
+            task.text.toLowerCase().includes(query.toLowerCase())
+        );
     }
 
     // 渲染任务列表
