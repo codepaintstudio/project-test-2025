@@ -1,4 +1,4 @@
-const { useState, useMemo } = React;
+import { useState, useMemo } from 'react'
 
 // 商品数据
 const productsData = [
@@ -8,7 +8,7 @@ const productsData = [
     { id: 4, name: 'iPad Air', price: 4599, stock: 3 },
     { id: 5, name: 'Apple Watch', price: 2999, stock: 8 },
     { id: 6, name: 'Magic Mouse', price: 799, stock: 15 }
-];
+]
 
 // 商品卡片组件
 function ProductCard({ product, onAddToCart }) {
@@ -21,18 +21,18 @@ function ProductCard({ product, onAddToCart }) {
         // 4. 使用合适的CSS类名来匹配样式
         
         <div className="product-card">
-            <h3>{/* 在这里显示商品名称 */}</h3>
-            <p className="price">{/* 在这里显示商品价格 */}</p>
-            <p className="stock">{/* 在这里显示库存信息 */}</p>
+            <h3>{product.name}</h3>
+            <p className="price">¥{product.price}</p>
+            <p className="stock">库存：{product.stock}</p>
             <button 
                 className="add-btn"
-                onClick={() => {/* 在这里调用onAddToCart函数 */}}
-                disabled={/* 在这里添加禁用条件 */}
+                onClick={() => onAddToCart(product)}
+                disabled={product.stock === 0}
             >
-                {/* 在这里根据库存显示不同的按钮文本 */}
+                {product.stock === 0 ? '缺货' : '加入购物车'}
             </button>
         </div>
-    );
+    )
 }
 
 // 购物车项目组件
@@ -46,31 +46,31 @@ function CartItem({ item, onIncrease, onDecrease, onRemove }) {
         // 4. 正确计算并显示小计金额
         
         <div className="cart-item">
-            <span className="item-name">{/* 显示商品名称 */}</span>
-            <span className="item-price">{/* 显示商品单价 */}</span>
+            <span className="item-name">{item.name}</span>
+            <span className="item-price">¥{item.price}</span>
             <div className="quantity-controls">
                 <button 
-                    className={/* 根据数量设置CSS类名 */}
-                    onClick={() => {/* 调用相应的函数 */}}
+                    className={item.quantity === 1 ? "qty-btn remove-btn" : "qty-btn"}
+                    onClick={() => item.quantity === 1 ? onRemove(item) : onDecrease(item)}
                 >
-                    {/* 根据数量显示"-"或"删除" */}
+                    {item.quantity === 1 ? '删除' : '-'}
                 </button>
-                <span className="quantity">{/* 显示数量 */}</span>
+                <span className="quantity">{item.quantity}</span>
                 <button 
                     className="qty-btn"
-                    onClick={() => {/* 调用增加数量函数 */}}
+                    onClick={() => onIncrease(item)}
                 >
                     +
                 </button>
             </div>
-            <span className="subtotal">{/* 显示小计金额 */}</span>
+            <span className="subtotal">¥{(item.price * item.quantity).toFixed(2)}</span>
         </div>
-    );
+    )
 }
 
 // 主应用组件
 function ShoppingCartApp() {
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState([])
     
     // TODO_03 (10分): 使用useMemo实现购物车统计
     // 要求：
@@ -79,29 +79,26 @@ function ShoppingCartApp() {
     // 3. 使用useMemo创建isCartEmpty，判断购物车是否为空
     
     const totalPrice = useMemo(() => {
-        // 在这里计算购物车总价
-        return 0;
-    }, [cartItems]);
+        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
+    }, [cartItems])
     
     const totalQuantity = useMemo(() => {
-        // 在这里计算商品总数量
-        return 0;
-    }, [cartItems]);
+        return cartItems.reduce((total, item) => total + item.quantity, 0)
+    }, [cartItems])
     
     const isCartEmpty = useMemo(() => {
-        // 在这里判断购物车是否为空
-        return true;
-    }, [cartItems]);
+        return cartItems.length === 0
+    }, [cartItems])
     
     // 添加商品到购物车
     const addToCart = (product) => {
         if (product.stock <= 0) {
-            alert('商品库存不足！');
-            return;
+            alert('商品库存不足！')
+            return
         }
         
         setCartItems(prevItems => {
-            const existingItem = prevItems.find(item => item.id === product.id);
+            const existingItem = prevItems.find(item => item.id === product.id)
             
             if (existingItem) {
                 if (existingItem.quantity < product.stock) {
@@ -109,10 +106,10 @@ function ShoppingCartApp() {
                         item.id === product.id
                             ? { ...item, quantity: item.quantity + 1 }
                             : item
-                    );
+                    )
                 } else {
-                    alert('已达到该商品的最大库存量！');
-                    return prevItems;
+                    alert('已达到该商品的最大库存量！')
+                    return prevItems
                 }
             } else {
                 return [...prevItems, {
@@ -121,10 +118,10 @@ function ShoppingCartApp() {
                     price: product.price,
                     quantity: 1,
                     maxStock: product.stock
-                }];
+                }]
             }
-        });
-    };
+        })
+    }
     
     // TODO_02 (10分): 实现购物车操作函数
     // 要求：
@@ -133,27 +130,48 @@ function ShoppingCartApp() {
     // 3. 完成removeFromCart函数：从购物车中移除商品
     
     const increaseQuantity = (item) => {
-        // 在这里实现增加数量的逻辑
-    };
+        setCartItems(prevItems => {
+            return prevItems.map(cartItem => {
+                if (cartItem.id === item.id) {
+                    if (cartItem.quantity < cartItem.maxStock) {
+                        return { ...cartItem, quantity: cartItem.quantity + 1 }
+                    } else {
+                        alert('已达到该商品的最大库存量！')
+                        return cartItem
+                    }
+                }
+                return cartItem
+            })
+        })
+    }
     
     const decreaseQuantity = (item) => {
-        // 在这里实现减少数量的逻辑
-    };
+        setCartItems(prevItems => {
+            return prevItems.map(cartItem => {
+                if (cartItem.id === item.id && cartItem.quantity > 1) {
+                    return { ...cartItem, quantity: cartItem.quantity - 1 }
+                }
+                return cartItem
+            })
+        })
+    }
     
     const removeFromCart = (item) => {
-        // 在这里实现移除商品的逻辑
-    };
+        setCartItems(prevItems => {
+            return prevItems.filter(cartItem => cartItem.id !== item.id)
+        })
+    }
     
     // 结算功能
     const checkout = () => {
         if (cartItems.length === 0) {
-            alert('购物车是空的！');
-            return;
+            alert('购物车是空的！')
+            return
         }
         
-        alert(`结算成功！总金额：¥${totalPrice.toFixed(2)}`);
-        setCartItems([]);
-    };
+        alert(`结算成功！总金额：¥${totalPrice.toFixed(2)}`)
+        setCartItems([])
+    }
     
     return (
         <div className="container">
@@ -181,19 +199,29 @@ function ShoppingCartApp() {
                     {/* TODO_03: 使用条件渲染显示空购物车提示或购物车商品列表 */}
                     {/* 提示：使用 isCartEmpty 来判断显示内容 */}
                     
-                    <div className="cart-empty">
-                        <p>购物车是空的，快去选购商品吧！</p>
-                    </div>
-                    
-                    {/* 在这里渲染购物车商品列表 */}
+                    {isCartEmpty ? (
+                        <div className="cart-empty">
+                            <p>购物车是空的，快去选购商品吧！</p>
+                        </div>
+                    ) : (
+                        cartItems.map(item => (
+                            <CartItem
+                                key={item.id}
+                                item={item}
+                                onIncrease={increaseQuantity}
+                                onDecrease={decreaseQuantity}
+                                onRemove={removeFromCart}
+                            />
+                        ))
+                    )}
                 </div>
 
                 <div className="cart-summary">
                     <div className="summary-row">
-                        <span>商品数量：<strong>{/* 显示totalQuantity */}</strong> 件</span>
+                        <span>商品数量：<strong>{totalQuantity}</strong> 件</span>
                     </div>
                     <div className="summary-row total">
-                        <span>总计：<strong>¥{/* 显示totalPrice */}</strong></span>
+                        <span>总计：<strong>¥{totalPrice.toFixed(2)}</strong></span>
                     </div>
                     <button className="checkout-btn" onClick={checkout}>
                         结算
@@ -201,8 +229,11 @@ function ShoppingCartApp() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-// 渲染应用
-ReactDOM.render(<ShoppingCartApp />, document.getElementById('root'));
+function App() {
+    return <ShoppingCartApp />
+}
+
+export default App
