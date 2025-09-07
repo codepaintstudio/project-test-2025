@@ -1,256 +1,462 @@
-// 全局变量
-let allContacts = [];
-let currentPage = 1;
-let pageSize = 10;
+// 2048游戏类
+class Game2048 {
+    constructor() {
+        this.board = [];
+        this.score = 0;
+        this.bestScore = this.loadBestScore();
+        this.gameOver = false;
+        this.won = false;
+        this.moving = false; // 防止快速连续移动
 
-// 页面加载完成后获取通讯录数据
-document.addEventListener('DOMContentLoaded', function () {
-    fetchContacts();
-    bindEvents();
+        this.initializeBoard();
+        this.bindEvents();
+        this.updateDisplay();
+        this.addRandomTile();
+        this.addRandomTile();
+        this.updateBoard();
+    }
+
+    // 初始化4x4游戏板
+    initializeBoard() {
+        this.board = [];
+        for (let i = 0; i < 4; i++) {
+            this.board[i] = [];
+            for (let j = 0; j < 4; j++) {
+                this.board[i][j] = 0;
+            }
+        }
+    }
+
+    // 绑定事件
+    bindEvents() {
+        // 键盘事件
+        document.addEventListener('keydown', (e) => {
+            if (this.gameOver || this.moving) return;
+
+            let moved = false;
+            switch (e.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moved = this.move('up');
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moved = this.move('down');
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moved = this.move('left');
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moved = this.move('right');
+                    break;
+                default:
+                    return;
+            }
+
+            if (moved) {
+                e.preventDefault();
+                // 立即更新棋盘显示移动结果
+                this.updateBoard(true);
+                this.afterMove();
+            }
+        });
+
+        // 按钮事件
+        document.getElementById('new-game').addEventListener('click', () => {
+            this.newGame();
+        });
+
+        document.getElementById('restart').addEventListener('click', () => {
+            this.restart();
+        });
+
+        document.getElementById('try-again').addEventListener('click', () => {
+            this.newGame();
+        });
+
+        // 触摸事件（移动设备支持）
+        this.bindTouchEvents();
+    }
+
+    // 绑定触摸事件
+    bindTouchEvents() {
+        const gameBoard = document.getElementById('game-board');
+        let startX, startY;
+
+        gameBoard.addEventListener('touchstart', (e) => {
+            if (this.gameOver || this.moving) return;
+
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            e.preventDefault();
+        });
+
+        gameBoard.addEventListener('touchend', (e) => {
+            if (this.gameOver || this.moving || !startX || !startY) return;
+
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+
+            const minDistance = 30;
+            let moved = false;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // 水平滑动
+                if (Math.abs(deltaX) > minDistance) {
+                    moved = deltaX > 0 ? this.move('right') : this.move('left');
+                }
+            } else {
+                // 垂直滑动
+                if (Math.abs(deltaY) > minDistance) {
+                    moved = deltaY > 0 ? this.move('down') : this.move('up');
+                }
+            }
+
+            if (moved) {
+                // 立即更新棋盘显示移动结果
+                this.updateBoard(true);
+                this.afterMove();
+            }
+
+            startX = startY = null;
+            e.preventDefault();
+        });
+    }
+
+    // 移动逻辑
+    move(direction) {
+        const prevBoard = JSON.parse(JSON.stringify(this.board));
+        let moved = false;
+
+        this.moving = true;
+
+        switch (direction) {
+            case 'left':
+                moved = this.moveLeft();
+                break;
+            case 'right':
+                moved = this.moveRight();
+                break;
+            case 'up':
+                moved = this.moveUp();
+                break;
+            case 'down':
+                moved = this.moveDown();
+                break;
+        }
+
+        // 检查是否真的有移动
+        if (!this.boardsEqual(prevBoard, this.board)) {
+            moved = true;
+        }
+
+        return moved;
+    }
+
+    // 向左移动
+    moveLeft() {
+        let moved = false;
+        for (let i = 0; i < 4; i++) {
+            const row = this.board[i].filter(val => val !== 0);
+
+            // 合并相同的数字
+            for (let j = 0; j < row.length - 1; j++) {
+                if (row[j] === row[j + 1]) {
+                    row[j] *= 2;
+                    this.score += row[j];
+                    row[j + 1] = 0;
+
+                    // 检查是否达到2048
+                    if (row[j] === 2048 && !this.won) {
+                        this.won = true;
+                        setTimeout(() => {
+                            this.showWinMessage();
+                        }, 300);
+                    }
+                }
+            }
+
+            // 移除0并填充到4位
+            const newRow = row.filter(val => val !== 0);
+            while (newRow.length < 4) {
+                newRow.push(0);
+            }
+
+            // 检查是否有变化
+            for (let j = 0; j < 4; j++) {
+                if (this.board[i][j] !== newRow[j]) {
+                    moved = true;
+                }
+                this.board[i][j] = newRow[j];
+            }
+        }
+        return moved;
+    }
+
+    // 向右移动
+    moveRight() {
+        this.reverseBoard();
+        const moved = this.moveLeft();
+        this.reverseBoard();
+        return moved;
+    }
+
+    // 向上移动
+    moveUp() {
+        this.transposeBoard();
+        const moved = this.moveLeft();
+        this.transposeBoard();
+        return moved;
+    }
+
+    // 向下移动
+    moveDown() {
+        this.transposeBoard();
+        this.reverseBoard();
+        const moved = this.moveLeft();
+        this.reverseBoard();
+        this.transposeBoard();
+        return moved;
+    }
+
+    // 翻转棋盘（水平翻转）
+    reverseBoard() {
+        for (let i = 0; i < 4; i++) {
+            this.board[i].reverse();
+        }
+    }
+
+    // 转置棋盘
+    transposeBoard() {
+        const newBoard = [];
+        for (let i = 0; i < 4; i++) {
+            newBoard[i] = [];
+            for (let j = 0; j < 4; j++) {
+                newBoard[i][j] = this.board[j][i];
+            }
+        }
+        this.board = newBoard;
+    }
+
+    // 移动后处理
+    afterMove() {
+        // 立即更新分数
+        this.updateDisplay();
+
+        // 延迟添加新方块，让移动动画完成
+        setTimeout(() => {
+            this.addRandomTile();
+            this.updateBoard(); // 这里会显示出现动画
+            this.checkGameState();
+            this.moving = false;
+        }, 200);
+    }
+
+    // 添加随机方块
+    addRandomTile() {
+        const emptyCells = [];
+
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (this.board[i][j] === 0) {
+                    emptyCells.push({ row: i, col: j });
+                }
+            }
+        }
+
+        if (emptyCells.length > 0) {
+            const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            // 90% 概率出现2，10% 概率出现4
+            this.board[randomCell.row][randomCell.col] = Math.random() < 0.9 ? 2 : 4;
+        }
+    }
+
+    // 更新游戏板显示
+    updateBoard(skipAnimation = false) {
+        const container = document.getElementById('tile-container');
+
+        // 使用requestAnimationFrame确保DOM更新的流畅性
+        requestAnimationFrame(() => {
+            container.innerHTML = '';
+
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (this.board[i][j] !== 0) {
+                        const tile = document.createElement('div');
+                        tile.className = `tile tile-${this.board[i][j]}`;
+
+                        // 超过2048的方块使用特殊样式
+                        if (this.board[i][j] > 2048) {
+                            tile.className = 'tile tile-super';
+                        }
+
+                        // 如果跳过动画（用于移动时），移除出现动画
+                        if (skipAnimation) {
+                            tile.style.animation = 'none';
+                        }
+
+                        tile.textContent = this.board[i][j];
+                        tile.style.left = `${j * 80}px`;
+                        tile.style.top = `${i * 80}px`;
+
+                        container.appendChild(tile);
+                    }
+                }
+            }
+        });
+    }
+
+    // 更新分数显示
+    updateDisplay() {
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('best-score').textContent = this.bestScore;
+
+        // 更新最高分
+        if (this.score > this.bestScore) {
+            this.bestScore = this.score;
+            this.saveBestScore();
+        }
+    }
+
+    // 检查游戏状态
+    checkGameState() {
+        if (this.isGameOver()) {
+            this.gameOver = true;
+            setTimeout(() => {
+                this.showGameOver();
+            }, 300);
+        }
+    }
+
+    // 检查游戏是否结束
+    isGameOver() {
+        // 检查是否还有空格
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (this.board[i][j] === 0) {
+                    return false;
+                }
+            }
+        }
+
+        // 检查是否还能合并
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                const current = this.board[i][j];
+
+                // 检查右边
+                if (j < 3 && current === this.board[i][j + 1]) {
+                    return false;
+                }
+
+                // 检查下面
+                if (i < 3 && current === this.board[i + 1][j]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // 比较两个棋盘是否相等
+    boardsEqual(board1, board2) {
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (board1[i][j] !== board2[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // 显示获胜消息
+    showWinMessage() {
+        const gameOverDiv = document.getElementById('game-over');
+        const titleDiv = document.getElementById('game-over-title');
+        const messageDiv = document.getElementById('game-over-message');
+
+        titleDiv.textContent = '恭喜你！';
+        messageDiv.textContent = '你达到了2048！继续游戏挑战更高分数吧！';
+        gameOverDiv.classList.remove('hidden');
+
+        // 3秒后自动隐藏
+        setTimeout(() => {
+            gameOverDiv.classList.add('hidden');
+        }, 3000);
+    }
+
+    // 显示游戏结束
+    showGameOver() {
+        const gameOverDiv = document.getElementById('game-over');
+        const titleDiv = document.getElementById('game-over-title');
+        const messageDiv = document.getElementById('game-over-message');
+
+        titleDiv.textContent = '游戏结束！';
+        messageDiv.textContent = `你的分数：${this.score} 分`;
+        gameOverDiv.classList.remove('hidden');
+    }
+
+    // 开始新游戏
+    newGame() {
+        this.board = [];
+        this.score = 0;
+        this.gameOver = false;
+        this.won = false;
+        this.moving = false;
+
+        this.initializeBoard();
+        this.addRandomTile();
+        this.addRandomTile();
+        this.updateBoard();
+        this.updateDisplay();
+
+        // 隐藏游戏结束界面
+        document.getElementById('game-over').classList.add('hidden');
+    }
+
+    // 重新开始（保持分数）
+    restart() {
+        this.newGame();
+    }
+
+    // 保存最高分到本地存储
+    saveBestScore() {
+        localStorage.setItem('game2048-best-score', this.bestScore.toString());
+    }
+
+    // 从本地存储加载最高分
+    loadBestScore() {
+        const saved = localStorage.getItem('game2048-best-score');
+        return saved ? parseInt(saved) : 0;
+    }
+}
+
+// 页面加载完成后启动游戏
+document.addEventListener('DOMContentLoaded', () => {
+    new Game2048();
+
+    // 显示键盘提示
+    setTimeout(() => {
+        const hint = document.createElement('div');
+        hint.className = 'key-hint';
+        hint.textContent = '使用方向键或 WASD 移动方块';
+        document.body.appendChild(hint);
+
+        setTimeout(() => {
+            document.body.removeChild(hint);
+        }, 2000);
+    }, 1000);
 });
 
-// TODO_01: 获取通讯录数据
-async function fetchContacts() {
-    const container = document.getElementById('contacts-container');
-
-    try {
-        // 显示加载状态
-        container.innerHTML = '<p class="loading">正在加载通讯录...</p>';
-        // TODO_01: start
-
-        // 注意: 获取数据之后需赋值给 allContacts 变量，后续渲染数据会用到
-        // TODO_01: end
-
-        // 渲染通讯录
-        renderContacts();
-        renderPagination();
-    } catch (error) {
-        // 处理错误
-        console.error('获取通讯录数据失败:', error);
-        container.innerHTML = `
-            <div class="error">
-                <p>加载通讯录失败: ${error.message}</p>
-                <p>请检查网络连接或联系管理员。</p>
-            </div>
-        `;
+// 防止方向键滚动页面
+window.addEventListener('keydown', (e) => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+        e.preventDefault();
     }
-}
-
-// 渲染通讯录表格
-function renderContacts() {
-    const container = document.getElementById('contacts-container');
-
-    // TODO_02: 修复'startIndex'和'endIndex'的计算逻辑
-    // TODO_02: start
-    let startIndex = 1
-    let endIndex = 10
-    // TODO_02: end
-    const contactsToShow = allContacts.slice(startIndex, endIndex);
-
-    // 检查是否有联系人
-    if (allContacts.length === 0) {
-        container.innerHTML = '<p class="no-contacts">暂无联系人信息</p>';
-        return;
-    }
-
-    // 创建表格
-    let tableHTML = `
-        <table class="contacts-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>姓名</th>
-                    <th>电话</th>
-                    <th>邮箱</th>
-                    <th>地址</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // 添加联系人数据
-    contactsToShow.forEach(contact => {
-        tableHTML += `
-            <tr>
-                <td>${escapeHtml(contact.id.toString())}</td>
-                <td>${escapeHtml(contact.name)}</td>
-                <td>${escapeHtml(contact.phone)}</td>
-                <td>${escapeHtml(contact.email)}</td>
-                <td>${escapeHtml(contact.address)}</td>
-            </tr>
-        `;
-    });
-
-    tableHTML += `
-            </tbody>
-        </table>
-    `;
-
-    container.innerHTML = tableHTML;
-}
-
-// 渲染分页控件
-function renderPagination() {
-    const totalPages = Math.ceil(allContacts.length / pageSize);
-
-    // 确保当前页不超过总页数
-    if (currentPage > totalPages && totalPages > 0) {
-        currentPage = totalPages;
-    }
-
-    // 如果没有数据，设置当前页为1
-    if (totalPages === 0) {
-        currentPage = 1;
-    }
-
-    // 更新页面信息
-    const pageInfo = document.getElementById('page-info');
-    if (allContacts.length > 0) {
-        const start = (currentPage - 1) * pageSize + 1;
-        const end = Math.min(currentPage * pageSize, allContacts.length);
-        pageInfo.textContent = `显示第 ${start} 到 ${end} 项，共 ${allContacts.length} 项`;
-    } else {
-        pageInfo.textContent = '没有联系人信息';
-    }
-
-    // 更新分页按钮状态
-    document.getElementById('first-page').disabled = currentPage === 1;
-    document.getElementById('prev-page').disabled = currentPage === 1;
-    document.getElementById('next-page').disabled = currentPage === totalPages || totalPages === 0;
-    document.getElementById('last-page').disabled = currentPage === totalPages || totalPages === 0;
-
-    // 更新页码输入框的最大值
-    document.getElementById('page-input').max = totalPages;
-    document.getElementById('page-input').value = '';
-
-    // 设置每页显示条数的下拉框选中值
-    document.getElementById('items-per-page').value = pageSize;
-
-    // 生成页码按钮
-    const pageNumbersContainer = document.getElementById('page-numbers');
-    pageNumbersContainer.innerHTML = '';
-
-    // 计算要显示的页码范围
-    let startPage, endPage;
-    if (totalPages <= 5) {
-        // 如果总页数小于等于5页，显示所有页码
-        startPage = 1;
-        endPage = totalPages;
-    } else {
-        // 如果总页数大于5页，显示当前页附近的页码
-        if (currentPage <= 3) {
-            startPage = 1;
-            endPage = 5;
-        } else if (currentPage + 1 >= totalPages) {
-            startPage = totalPages - 4;
-            endPage = totalPages;
-        } else {
-            startPage = currentPage - 2;
-            endPage = currentPage + 2;
-        }
-    }
-
-    // 创建页码按钮
-    for (let i = startPage; i <= endPage; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.className = `page-number ${i === currentPage ? 'active' : ''}`;
-        pageButton.textContent = i;
-        pageButton.dataset.page = i;
-        pageNumbersContainer.appendChild(pageButton);
-    }
-}
-
-// 绑定事件
-function bindEvents() {
-    // 首页按钮
-    document.getElementById('first-page').addEventListener('click', () => {
-        currentPage = 1;
-        renderContacts();
-        renderPagination();
-    });
-
-    // 上一页按钮
-    document.getElementById('prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            renderContacts();
-            renderPagination();
-        }
-    });
-
-    // 下一页按钮
-    document.getElementById('next-page').addEventListener('click', () => {
-        const totalPages = Math.ceil(allContacts.length / pageSize);
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderContacts();
-            renderPagination();
-        }
-    });
-
-    // 末页按钮
-    document.getElementById('last-page').addEventListener('click', () => {
-        const totalPages = Math.ceil(allContacts.length / pageSize);
-        currentPage = totalPages > 0 ? totalPages : 1;
-        renderContacts();
-        renderPagination();
-    });
-
-    // 页码按钮事件委托
-    document.getElementById('page-numbers').addEventListener('click', (e) => {
-        if (e.target.classList.contains('page-number') && !e.target.classList.contains('active')) {
-            currentPage = parseInt(e.target.dataset.page);
-            renderContacts();
-            renderPagination();
-        }
-    });
-
-    // 每页显示条数改变事件
-    document.getElementById('items-per-page').addEventListener('change', (e) => {
-        pageSize = parseInt(e.target.value);
-        currentPage = 1; // 重置到第一页
-        renderContacts();
-        renderPagination();
-    });
-
-    // 页码跳转按钮
-    document.getElementById('go-to-page').addEventListener('click', goToPage);
-
-    // 页码输入框回车事件
-    document.getElementById('page-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            goToPage();
-        }
-    });
-}
-
-// 转义HTML特殊字符以防止XSS攻击
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// 跳转到指定页码
-function goToPage() {
-    const pageInput = document.getElementById('page-input');
-    const pageNumber = parseInt(pageInput.value);
-    const totalPages = Math.ceil(allContacts.length / pageSize);
-
-    // 检查输入是否有效
-    if (isNaN(pageNumber) || pageNumber < 1) {
-        alert(`请输入有效的页码 (1-${totalPages})`);
-        pageInput.value = '';
-        return;
-    }
-
-    if (pageNumber > totalPages) {
-        alert(`页码不能超过最大页数 ${totalPages}`);
-        pageInput.value = '';
-        return;
-    }
-
-    currentPage = pageNumber;
-    renderContacts();
-    renderPagination();
-}
+});

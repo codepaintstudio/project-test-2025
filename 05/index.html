@@ -1,16 +1,91 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="zh-CN">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vue购物车应用</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直播间弹幕风暴 - 性能优化挑战</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.js"></script>
+    <div class="live-room">
+        <!-- 直播视频区域 -->
+        <div class="video-container">
+            <div class="video-placeholder">
+                <div class="video-info">
+                    <h2>🔴 直播中</h2>
+                    <p>超人气主播正在直播中...</p>
+                    <div class="viewer-count">
+                        <span id="viewer-count">8,888</span> 人观看
+                    </div>
+                </div>
+
+                <!-- 弹幕容器 -->
+                <div id="danmaku-container" class="danmaku-container"></div>
+            </div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <!-- 性能监控面板 -->
+            <div class="performance-panel">
+                <h3>🎯 性能监控面板</h3>
+                <div class="metrics">
+                    <div class="metric">
+                        <span>FPS:</span>
+                        <span id="fps-counter" class="metric-value">60</span>
+                    </div>
+                    <div class="metric">
+                        <span>弹幕数量:</span>
+                        <span id="danmaku-count" class="metric-value">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>内存使用:</span>
+                        <span id="memory-usage" class="metric-value">0 MB</span>
+                    </div>
+                    <div class="metric">
+                        <span>每秒弹幕:</span>
+                        <span id="danmaku-rate" class="metric-value">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>弹道占用:</span>
+                        <span id="lane-usage" class="metric-value">0%</span>
+                    </div>
+                    <div class="metric">
+                        <span>对象池:</span>
+                        <span id="pool-size" class="metric-value">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 挑战说明 -->
+            <div class="challenge-panel">
+                <h3>⚡ 性能优化挑战</h3>
+                <div class="challenge-info">
+                    <p><strong>当前模式：</strong>高频弹幕挑战</p>
+                    <p><strong>目标：</strong>保持60FPS流畅运行</p>
+                    <p><strong>挑战：</strong>优化DOM操作和内存管理</p>
+                </div>
+                <div class="performance-tips">
+                    <h4>💡 优化提示:</h4>
+                    <ul>
+                        <li>🔄 使用对象池避免频繁创建销毁</li>
+                        <li>🎭 实现DOM元素复用机制</li>
+                        <li>⚡ 优化动画和渲染性能</li>
+                        <li>🧹 及时清理过期弹幕</li>
+                        <li>📊 监控内存使用情况</li>
+                        <li>🎯 合理分配弹道资源</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
