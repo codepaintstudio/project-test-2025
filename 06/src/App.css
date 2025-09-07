@@ -1,0 +1,225 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.dfs-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  text-align: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.header h1 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 24px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  overflow: auto;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.grid-container {
+  display: inline-block;
+  border: 3px solid #34495e;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.grid-row {
+  display: flex;
+}
+
+.grid-cell {
+  width: 22px;
+  height: 22px;
+  border: 1px solid #ddd;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.grid-cell.wall {
+  background-color: #34495e;
+  border-color: #2c3e50;
+}
+
+.grid-cell.start {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  border-color: #27ae60;
+}
+
+.grid-cell.end {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  border-color: #c0392b;
+}
+
+.grid-cell.visited {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-color: #2980b9;
+  animation: visitedAnimation 0.5s ease-out;
+}
+
+.grid-cell.current-path {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  border-color: #8e44ad;
+  animation: pulse 1.5s infinite;
+}
+
+.grid-cell.final-path {
+  background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+  border-color: #f39c12;
+  animation: pathAnimation 0.5s ease-out;
+}
+
+@keyframes visitedAnimation {
+  0% {
+    transform: scale(0.3);
+    background-color: #aec6cf;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pathAnimation {
+  0% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7);
+  }
+  70% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(155, 89, 182, 0);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(155, 89, 182, 0);
+  }
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 15px 0 0;
+  gap: 15px;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+}
+
+.legend-color.start {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.legend-color.end {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.legend-color.wall {
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+}
+
+.legend-color.visited {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.legend-color.current-path {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+}
+
+.legend-color.final-path {
+  background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+}
+
+.legend-color.in-stack {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+}
