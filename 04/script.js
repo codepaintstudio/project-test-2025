@@ -6,7 +6,7 @@ class Game2048 {
         this.bestScore = this.loadBestScore();
         this.gameOver = false;
         this.won = false;
-        this.moving = false; // 防止快速连续移动
+        this.moving = false;
 
         this.initializeBoard();
         this.bindEvents();
@@ -75,56 +75,6 @@ class Game2048 {
         document.getElementById('try-again').addEventListener('click', () => {
             this.newGame();
         });
-
-        // 触摸事件（移动设备支持）
-        this.bindTouchEvents();
-    }
-
-    // 绑定触摸事件
-    bindTouchEvents() {
-        const gameBoard = document.getElementById('game-board');
-        let startX, startY;
-
-        gameBoard.addEventListener('touchstart', (e) => {
-            if (this.gameOver || this.moving) return;
-
-            const touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
-            e.preventDefault();
-        });
-
-        gameBoard.addEventListener('touchend', (e) => {
-            if (this.gameOver || this.moving || !startX || !startY) return;
-
-            const touch = e.changedTouches[0];
-            const deltaX = touch.clientX - startX;
-            const deltaY = touch.clientY - startY;
-
-            const minDistance = 30;
-            let moved = false;
-
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                // 水平滑动
-                if (Math.abs(deltaX) > minDistance) {
-                    moved = deltaX > 0 ? this.move('right') : this.move('left');
-                }
-            } else {
-                // 垂直滑动
-                if (Math.abs(deltaY) > minDistance) {
-                    moved = deltaY > 0 ? this.move('down') : this.move('up');
-                }
-            }
-
-            if (moved) {
-                // 立即更新棋盘显示移动结果
-                this.updateBoard(true);
-                this.afterMove();
-            }
-
-            startX = startY = null;
-            e.preventDefault();
-        });
     }
 
     // 移动逻辑
@@ -161,38 +111,16 @@ class Game2048 {
     moveLeft() {
         let moved = false;
         for (let i = 0; i < 4; i++) {
-            const row = this.board[i].filter(val => val !== 0);
-
-            // 合并相同的数字
-            for (let j = 0; j < row.length - 1; j++) {
-                if (row[j] === row[j + 1]) {
-                    row[j] *= 2;
-                    this.score += row[j];
-                    row[j + 1] = 0;
-
-                    // 检查是否达到2048
-                    if (row[j] === 2048 && !this.won) {
-                        this.won = true;
-                        setTimeout(() => {
-                            this.showWinMessage();
-                        }, 300);
-                    }
-                }
-            }
-
-            // 移除0并填充到4位
-            const newRow = row.filter(val => val !== 0);
-            while (newRow.length < 4) {
-                newRow.push(0);
-            }
-
-            // 检查是否有变化
-            for (let j = 0; j < 4; j++) {
-                if (this.board[i][j] !== newRow[j]) {
-                    moved = true;
-                }
-                this.board[i][j] = newRow[j];
-            }
+            // TODO_01 (10分): 实现向左移动的核心逻辑
+            // 提示：
+            // 1. 首先过滤掉空格子(值为0的格子): const row = this.board[i].filter(val => val !== 0);
+            // 2. 然后遍历行，合并相邻的相同数字
+            // 3. 合并时需要将第一个数字翻倍，第二个数字设为0，并增加分数
+            // 4. 最后移除所有0，并用0填充到4个位置
+            // 5. 检查棋盘是否有变化，如果有变化则返回true
+            
+            // 请在这里实现向左移动逻辑
+            
         }
         return moved;
     }
@@ -224,22 +152,28 @@ class Game2048 {
     }
 
     // 翻转棋盘（水平翻转）
+    // 详细注释：这个函数将棋盘的每一行都左右翻转
+    // 例如：[2, 4, 8, 0] 会变成 [0, 8, 4, 2]
+    // 这样做的目的是复用moveLeft()方法来实现moveRight()
     reverseBoard() {
         for (let i = 0; i < 4; i++) {
-            this.board[i].reverse();
+            this.board[i].reverse(); // JavaScript数组的reverse()方法可以原地翻转数组
         }
     }
 
     // 转置棋盘
+    // 详细注释：将棋盘行和列交换，相当于矩阵转置
+    // 原始棋盘的第i行第j列元素，会变成新棋盘的第j行第i列元素
+    // 这样做的目的是将竖直方向的操作转换为水平方向的操作
     transposeBoard() {
-        const newBoard = [];
+        const newBoard = []; // 创建新的二维数组
         for (let i = 0; i < 4; i++) {
             newBoard[i] = [];
             for (let j = 0; j < 4; j++) {
-                newBoard[i][j] = this.board[j][i];
+                newBoard[i][j] = this.board[j][i]; // 关键操作：行列交换
             }
         }
-        this.board = newBoard;
+        this.board = newBoard; // 替换原棋盘
     }
 
     // 移动后处理
@@ -258,21 +192,15 @@ class Game2048 {
 
     // 添加随机方块
     addRandomTile() {
-        const emptyCells = [];
-
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if (this.board[i][j] === 0) {
-                    emptyCells.push({ row: i, col: j });
-                }
-            }
-        }
-
-        if (emptyCells.length > 0) {
-            const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            // 90% 概率出现2，10% 概率出现4
-            this.board[randomCell.row][randomCell.col] = Math.random() < 0.9 ? 2 : 4;
-        }
+        // TODO_02 (5分): 实现随机添加方块的功能
+        // 提示：
+        // 1. 找出所有空的格子(值为0)
+        // 2. 从空格子中随机选择一个
+        // 3. 90%概率放置数字2，10%概率放置数字4
+        // 4. 可以使用 Math.random() 和 Math.floor() 函数
+        
+        // 请在这里实现随机方块生成逻辑
+        
     }
 
     // 更新游戏板显示
@@ -334,45 +262,32 @@ class Game2048 {
 
     // 检查游戏是否结束
     isGameOver() {
-        // 检查是否还有空格
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if (this.board[i][j] === 0) {
-                    return false;
-                }
-            }
-        }
-
-        // 检查是否还能合并
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                const current = this.board[i][j];
-
-                // 检查右边
-                if (j < 3 && current === this.board[i][j + 1]) {
-                    return false;
-                }
-
-                // 检查下面
-                if (i < 3 && current === this.board[i + 1][j]) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        // TODO_03 (5分): 实现游戏结束判断逻辑
+        // 提示：
+        // 1. 游戏结束的条件：棋盘满了且无法再移动
+        // 2. 首先检查是否还有空格子(值为0)
+        // 3. 如果没有空格子，再检查相邻格子是否有相同数字可以合并
+        // 4. 需要检查每个格子的右边和下面的格子
+        // 5. 如果既没有空格又不能合并，则游戏结束
+        
+        // 请在这里实现游戏结束判断逻辑
+        return false; // 临时返回false，请根据实际逻辑修改
     }
 
     // 比较两个棋盘是否相等
+    // 详细注释：这个函数用于判断移动前后棋盘是否发生了变化
+    // 如果棋盘没有变化，则不需要添加新方块，也不需要进行动画
     boardsEqual(board1, board2) {
+        // 遍历棋盘的每一个位置
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
+                // 只要有一个位置不相等，就说明棋盘发生了变化
                 if (board1[i][j] !== board2[i][j]) {
                     return false;
                 }
             }
         }
-        return true;
+        return true; // 所有位置都相等，棋盘没有变化
     }
 
     // 显示获胜消息

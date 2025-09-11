@@ -16,48 +16,59 @@ const gridState = reactive({
 });
 
 // 初始化网格
+// 详细注释：这个函数初始化整个网格的状态和布局
 const initGrid = () => {
+  // 重置所有搜索状态为初始值
   gridState.grid = [];
-  gridState.visited = new Set();
-  gridState.queue = [];
-  gridState.path = [];
-  gridState.isRunning = false;
-  gridState.isCompleted = false;
+  gridState.visited = new Set(); // 清空已访问节点集合
+  gridState.queue = []; // 清空BFS队列
+  gridState.path = []; // 清空路径记录
+  gridState.isRunning = false; // 停止搜索状态
+  gridState.isCompleted = false; // 重置完成状态
 
+  // 使用双层循环创建二维网格
   for (let i = 0; i < gridState.rows; i++) {
     const row = [];
     for (let j = 0; j < gridState.cols; j++) {
       row.push({
+        // 25%的概率生成障碍物（墙）
         isWall: Math.random() < 0.25,
+        // 检查当前位置是否为起点
         isStart: i === gridState.start.row && j === gridState.start.col,
+        // 检查当前位置是否为终点
         isEnd: i === gridState.end.row && j === gridState.end.col,
       });
     }
-    gridState.grid.push(row);
+    gridState.grid.push(row); // 将这一行添加到网格中
   }
 
-  // 确保起点和终点不是墙
+  // 确保起点和终点不是墙（这很重要，否则无法搜索）
   gridState.grid[gridState.start.row][gridState.start.col].isWall = false;
   gridState.grid[gridState.end.row][gridState.end.col].isWall = false;
 };
 
 // 获取节点的字符串标识
+// 详细注释：这个函数将行和列的数字组合成一个字符串
+// 例如：第3行第5列的节点会被标记为 "3,5"
+// 这样做的目的是为了在Set中记录已访问节点，因为Set只能存储基本类型
 const getNodeKey = (row, col) => `${row},${col}`;
 
 // 获取邻居节点
+// 详细注释：这个函数获取指定节点的上下左右四个邻居节点
 const getNeighbors = (row, col) => {
   const neighbors = [];
   const directions = [
-    [-1, 0],
-    [1, 0],
-    [0, -1],
-    [0, 1], // 上下左右
+    [-1, 0], // 上
+    [1, 0],  // 下
+    [0, -1], // 左
+    [0, 1],  // 右
   ];
 
   for (const [dr, dc] of directions) {
     const newRow = row + dr;
     const newCol = col + dc;
 
+    // 检查边界条件、是否为墙、是否已访问
     if (
       newRow >= 0 &&
       newRow < gridState.rows &&
@@ -74,10 +85,12 @@ const getNeighbors = (row, col) => {
 };
 
 // 执行BFS搜索
+// 详细注释：BFS使用队列实现，保证找到的是最短路径
 const runBFS = async () => {
   if (gridState.isRunning) return;
 
   gridState.isRunning = true;
+  // 初始化BFS队列，包含起始节点和路径
   gridState.queue = [
     {
       row: gridState.start.row,
@@ -87,46 +100,31 @@ const runBFS = async () => {
   ];
 
   while (gridState.queue.length > 0 && gridState.isRunning) {
-    const current = gridState.queue.shift();
-    const { row, col, path } = current;
-    const key = getNodeKey(row, col);
-
-    // 如果已经访问过，跳过
-    if (gridState.visited.has(key)) continue;
-
-    // 标记为已访问
-    gridState.visited.add(key);
-
-    // 如果到达终点
-    if (row === gridState.end.row && col === gridState.end.col) {
-      gridState.path = path;
-      gridState.isCompleted = true;
-      gridState.isRunning = false;
-      return;
-    }
-
-    // 获取邻居节点
-    const neighbors = getNeighbors(row, col);
-
-    for (const neighbor of neighbors) {
-      const newPath = [...path, { row: neighbor.row, col: neighbor.col }];
-      gridState.queue.push({
-        row: neighbor.row,
-        col: neighbor.col,
-        path: newPath,
-      });
-    }
-
-    // 添加延迟以便观察搜索过程（调整为100ms）
+    // TODO_01 (15分): 实现BFS算法的核心循环逻辑
+    // 提示：
+    // 1. 从队列前端取出当前节点: const current = gridState.queue.shift();
+    // 2. 获取节点信息: const { row, col, path } = current;
+    // 3. 检查是否已访问: if (gridState.visited.has(getNodeKey(row, col))) continue;
+    // 4. 标记为已访问: gridState.visited.add(getNodeKey(row, col));
+    // 5. 检查是否到达终点，如果是则保存路径并返回
+    // 6. 获取邻居节点，为每个邻居创建新路径并加入队列
+    
+    // 请在这里实现BFS的主循环逻辑
+    
+    // 添加延迟以便观察搜索过程
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   gridState.isRunning = false;
 };
 
-// 重置网格
+// TODO_02 (15分): 实现重置网格功能
+// 提示：
+// 1. 重新调用initGrid()函数来重新初始化网格
+// 2. 这个操作会清空所有搜索状态和重新生成网格
 const resetGrid = () => {
-  initGrid();
+  // 请在这里实现重置功能
+  
 };
 
 // 页面加载时初始化网格
